@@ -1,34 +1,34 @@
 /*
-  Copyright 2020 K. Takeo. All rights reserved.
+   Copyright 2020 K. Takeo. All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
 
-  1. Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the following
-  disclaimer in the documentation and/or other materials provided
-  with the distribution.
-  3. Neither the name of the author nor other contributors may be
-  used to endorse or promote products derived from this software
-  without specific prior written permission.
+   1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+   3. Neither the name of the author nor other contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-  POSSIBILITY OF SUCH DAMAGE.
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+   FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+   COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
 
- */
+*/
 
 #include <pthread.h>
 #include <stdio.h>
@@ -59,30 +59,30 @@ struct gst_src {
 
 struct gst_src src;
 
-static gboolean
+	static gboolean
 gst_bus_cb(GstBus *bus, GstMessage *message, gpointer data)
 {
 	GError *err;
 	gchar *dbg;
 
 	switch (GST_MESSAGE_TYPE(message)) {
-	case GST_MESSAGE_ERROR:
-		gst_message_parse_error(message, &err, &dbg);
-		g_print("Error: %s\n", err->message);
-		g_error_free(err);
-		g_free(dbg);
-		g_main_loop_quit(src.loop);
-		break;
+		case GST_MESSAGE_ERROR:
+			gst_message_parse_error(message, &err, &dbg);
+			g_print("Error: %s\n", err->message);
+			g_error_free(err);
+			g_free(dbg);
+			g_main_loop_quit(src.loop);
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return TRUE;
 }
 
 
-int
+	int
 gst_src_init(int *argc, char ***argv, char *pipeline)
 {
 	GstCaps *caps;
@@ -104,9 +104,9 @@ gst_src_init(int *argc, char ***argv, char *pipeline)
 	src.appsrc = gst_bin_get_by_name(GST_BIN(src.pipeline), "ap");
 
 	caps = gst_caps_new_simple("video/x-h264",
-		"framerate", GST_TYPE_FRACTION, 30000, 1001,
-		"stream-format", G_TYPE_STRING, "byte-stream",
-		"profile", G_TYPE_STRING, "constrained-baseline", NULL);
+			"framerate", GST_TYPE_FRACTION, 30000, 1001,
+			"stream-format", G_TYPE_STRING, "byte-stream",
+			"profile", G_TYPE_STRING, "constrained-baseline", NULL);
 	gst_app_src_set_caps(GST_APP_SRC(src.appsrc), caps);
 
 	bus = gst_pipeline_get_bus(GST_PIPELINE(src.pipeline));
@@ -115,7 +115,7 @@ gst_src_init(int *argc, char ***argv, char *pipeline)
 	return TRUE;
 }
 
-void *
+	void *
 keywait(void *arg)
 {
 	struct gst_src *s;
@@ -128,7 +128,7 @@ keywait(void *arg)
 
 }
 
-void
+	void
 cb(uvc_frame_t *frame, void *ptr)
 {
 	struct gst_src *s;
@@ -160,7 +160,7 @@ cb(uvc_frame_t *frame, void *ptr)
 	return;
 }
 
-int
+	int
 main(int argc, char **argv)
 {
 	uvc_context_t *ctx;
@@ -187,9 +187,9 @@ main(int argc, char **argv)
 	if (strcmp(cmd_name, "gst_loopback") == 0)
 		pipe_proc = "decodebin ! autovideoconvert ! "
 			"video/x-raw,format=I420 ! identity drop-allocation=true !"
-			"v4l2sink device=/dev/video2 qos=false sync=false";
+			"v4l2sink device=/dev/video0 qos=false sync=false";
 	else
-		pipe_proc = " decodebin ! autovideosink sync=false";
+		pipe_proc = " nvv4l2decoder ! autovideosink sync=false";
 
 	if (!gst_src_init(&argc, &argv, pipe_proc))
 		return -1;
@@ -217,7 +217,7 @@ main(int argc, char **argv)
 				continue;
 
 			printf("%2d : %-18s : %-10s\n", idx, desc->product,
-				desc->serialNumber);
+					desc->serialNumber);
 
 			uvc_free_device_descriptor(desc);
 			idx++;
@@ -246,23 +246,42 @@ main(int argc, char **argv)
 
 	res = thetauvc_get_stream_ctrl_format_size(devh,
 			THETAUVC_MODE_UHD_2997, &ctrl);	
-	
+
 	if (argc > 1 && strcmp("--format", argv[1]) == 0) {
 		if (argc > 2 && strcmp("4K", argv[2]) == 0) {
 			printf("THETA live video is 4K");
 			res = thetauvc_get_stream_ctrl_format_size(devh,
-				THETAUVC_MODE_UHD_2997, &ctrl);	
+					THETAUVC_MODE_UHD_2997, &ctrl);	
 		} else if (argc > 2 && strcmp("2K", argv[2]) == 0) {
 			printf("THETA live video is 2K");
 			res = thetauvc_get_stream_ctrl_format_size(devh,
-				THETAUVC_MODE_FHD_2997, &ctrl);				
+					THETAUVC_MODE_FHD_2997, &ctrl);				
+		} else if (argc > 2 && strcmp("HD", argv[2]) == 0) {
+			printf("THETA live video is HD");
+			res = thetauvc_get_stream_ctrl_format_size(devh,
+					THETAUVC_MODE_HD_2997, &ctrl);	
+		} else if (argc > 2 && strcmp("HSVGA", argv[2]) == 0) {
+			printf("THETA live video is HSVGA");
+			res = thetauvc_get_stream_ctrl_format_size(devh,
+					THETAUVC_MODE_HSVGA_2997, &ctrl);	
+		}else if (argc > 2 && strcmp("HVGA", argv[2]) == 0) {
+			printf("THETA live video is HVGA");
+			res = thetauvc_get_stream_ctrl_format_size(devh,
+					THETAUVC_MODE_HVGA_2997, &ctrl);	
+		}else if (argc > 2 && strcmp("HHVGA", argv[2]) == 0) {
+			printf("THETA live video is HHVGA");
+			res = thetauvc_get_stream_ctrl_format_size(devh,
+					THETAUVC_MODE_HHVGA_2997, &ctrl);	
+		}else if (argc > 2 && strcmp("HQVGA", argv[2]) == 0) {
+			printf("THETA live video is HQVGA");
+			res = thetauvc_get_stream_ctrl_format_size(devh,
+					THETAUVC_MODE_HQVGA_2997, &ctrl);	
 		}
-		
 		else {
 			printf("specify video device. --format 4K or --format 2K\n");
 			goto exit;
 		}
-		
+
 	}
 
 
