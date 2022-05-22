@@ -1,34 +1,34 @@
 /*
-  Copyright 2020 K. Takeo. All rights reserved.
+   Copyright 2020 K. Takeo. All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
 
-  1. Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the following
-  disclaimer in the documentation and/or other materials provided
-  with the distribution.
-  3. Neither the name of the author nor other contributors may be
-  used to endorse or promote products derived from this software
-  without specific prior written permission.
+   1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+   3. Neither the name of the author nor other contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-  POSSIBILITY OF SUCH DAMAGE.
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+   FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+   COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
 
- */
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,15 +66,44 @@ static thetauvc_mode_t stream_mode[] = {
 		.fps = 29
 	},
 	{
+		.mode = THETAUVC_MODE_HD_2997,
+		.width = 1440,
+		.height = 720,
+		.fps = 29
+	},
+	{
+		.mode = THETAUVC_MODE_HSVGA_2997,
+		.width = 960,
+		.height = 480,
+		.fps = 29
+	},
+	{
+		.mode = THETAUVC_MODE_HVGA_2997,
+		.width = 720,
+		.height = 360,
+		.fps = 29
+	},
+	{
+		.mode = THETAUVC_MODE_HHVGA_2997,
+		.width = 480,
+		.height = 240,
+		.fps = 29
+	},
+	{
+		.mode = THETAUVC_MODE_HQVGA_2997,
+		.width = 360,
+		.height = 180,
+		.fps = 29
+	},{
 		.mode = THETAUVC_MODE_NUM,
 		.width = 0,
 		.height = 0,
 		.fps = 0
 	}
 };
-		
 
-uvc_error_t
+
+	uvc_error_t
 thetauvc_find_devices(uvc_context_t *ctx, uvc_device_t ***devs)
 {
 	uvc_device_t **devlist, **ret;
@@ -82,7 +111,7 @@ thetauvc_find_devices(uvc_context_t *ctx, uvc_device_t ***devs)
 	uvc_error_t res;
 
 	int idx, devcnt;
-	
+
 	res = uvc_find_devices(ctx, &devlist, USBVID_RICOH, 0, NULL);
 	if (res != UVC_SUCCESS) {
 		return res;
@@ -102,7 +131,7 @@ thetauvc_find_devices(uvc_context_t *ctx, uvc_device_t ***devs)
 			continue;
 
 		if (desc->idProduct == USBPID_THETAV_UVC
-			|| desc->idProduct == USBPID_THETAZ1_UVC) {
+				|| desc->idProduct == USBPID_THETAZ1_UVC) {
 			void *tmp_ptr;
 
 			devcnt++;
@@ -124,7 +153,7 @@ thetauvc_find_devices(uvc_context_t *ctx, uvc_device_t ***devs)
 
 	for (idx=0; idx < devcnt; idx++)
 		uvc_ref_device(ret[idx]);
-		
+
 	uvc_free_device_list(devlist, 1);
 
 	if (devcnt) {
@@ -137,7 +166,7 @@ thetauvc_find_devices(uvc_context_t *ctx, uvc_device_t ***devs)
 
 }	
 
-uvc_error_t
+	uvc_error_t
 thetauvc_print_devices(uvc_context_t *ctx, FILE *fp)
 {
 	uvc_device_t **devlist;
@@ -160,7 +189,7 @@ thetauvc_print_devices(uvc_context_t *ctx, FILE *fp)
 			continue;
 
 		fprintf(outfp, "%2d : %-18s : %-10s\n", idx, desc->product,
-			desc->serialNumber);
+				desc->serialNumber);
 		uvc_free_device_descriptor(desc);
 	}
 
@@ -170,7 +199,7 @@ thetauvc_print_devices(uvc_context_t *ctx, FILE *fp)
 }
 
 
-uvc_error_t
+	uvc_error_t
 thetauvc_find_device(uvc_context_t *ctx, uvc_device_t **devh, unsigned int index)
 {
 	uvc_device_t **devlist;
@@ -191,13 +220,13 @@ thetauvc_find_device(uvc_context_t *ctx, uvc_device_t **devh, unsigned int index
 	uvc_ref_device(devlist[index]);
 	*devh = devlist[index];
 	uvc_free_device_list(devlist, 1);
-	
+
 	return UVC_SUCCESS;
 }
 
-uvc_error_t
+	uvc_error_t
 thetauvc_find_device_by_serial(uvc_context_t *ctx, uvc_device_t **devh,
-	const char *serial)
+		const char *serial)
 {
 	uvc_device_t **devlist, *dev;
 	uvc_error_t res;
@@ -243,13 +272,13 @@ thetauvc_find_device_by_serial(uvc_context_t *ctx, uvc_device_t **devh,
 	return res;
 }
 
-uvc_error_t
+	uvc_error_t
 thetauvc_get_stream_ctrl_format_size(uvc_device_handle_t *devh,
-	       	unsigned int mode, uvc_stream_ctrl_t *ctrl)
+		unsigned int mode, uvc_stream_ctrl_t *ctrl)
 {
 	uvc_error_t res;
 	thetauvc_mode_t *m;
-	
+
 	if (!(mode < THETAUVC_MODE_NUM))
 		return UVC_ERROR_INVALID_MODE;
 
@@ -262,9 +291,9 @@ thetauvc_get_stream_ctrl_format_size(uvc_device_handle_t *devh,
 }
 
 
-uvc_error_t
+	uvc_error_t
 thetauvc_run_streaming(uvc_device_t *dev, uvc_device_handle_t **devh,
-	unsigned int mode, uvc_frame_callback_t *cb, void *pdata)
+		unsigned int mode, uvc_frame_callback_t *cb, void *pdata)
 {
 	uvc_error_t res;
 	uvc_stream_ctrl_t ctrl;
